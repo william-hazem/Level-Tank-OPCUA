@@ -1,0 +1,33 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+	<OutputType>Exe</OutputType>
+	<TargetFramework>net8.0</TargetFramework>
+	<RootNamespace>Atividade_OPCUA</RootNamespace>
+	<ImplicitUsings>enable</ImplicitUsings>
+	<Nullable>enable</Nullable>
+	<Copyright>william.martins@ee.ufcg.edu.br</Copyright>
+	</PropertyGroup>
+
+	<ItemGroup>
+	<PackageReference Include="OPCFoundation.NetStandard.Opc.Ua" Version="1.5.374.54" />
+	</ItemGroup>
+
+	<ItemGroup>
+	<Folder Include="Model\" />
+	</ItemGroup>
+	<!-- Copia os arquivos do Modelo de Informação para o dirétorio de Build-->
+	<ItemGroup>
+		<Content Include="Model\**">
+			<Link>Model\%(RecursiveDir)\%(Filename)%(Extension)</Link>
+			<TargetPath>Model\%(RecursiveDir)\%(Filename)%(Extension)</TargetPath>
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
+
+
+
+
+
+
+</Project>
