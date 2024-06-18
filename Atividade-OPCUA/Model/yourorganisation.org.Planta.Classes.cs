@@ -151,7 +151,7 @@ namespace yourorganisation.org.Planta
         }
 
         /// <remarks />
-        public BaseDataVariableState ST
+        public BaseDataVariableState<int> ST
         {
             get
             {
@@ -406,11 +406,11 @@ namespace yourorganisation.org.Planta
                         {
                             if (replacement == null)
                             {
-                                ST = new BaseDataVariableState(this);
+                                ST = new BaseDataVariableState<int>(this);
                             }
                             else
                             {
-                                ST = (BaseDataVariableState)replacement;
+                                ST = (BaseDataVariableState<int>)replacement;
                             }
                         }
                     }
@@ -538,7 +538,7 @@ namespace yourorganisation.org.Planta
         private BaseDataVariableState<bool> m_dL;
         private BaseDataVariableState<bool> m_eN;
         private BaseDataVariableState<bool> m_lG;
-        private BaseDataVariableState m_sT;
+        private BaseDataVariableState<int> m_sT;
         private MethodState m_startBombaMethod;
         private MethodState m_stopBombaMethod;
         private BaseDataVariableState<bool> m_tRIP;
@@ -826,7 +826,7 @@ namespace yourorganisation.org.Planta
         private const string InitializationString =
            "AQAAACMAAABodHRwOi8veW91cm9yZ2FuaXNhdGlvbi5vcmcvUGxhbnRhL/////8EYIACAQAAAAEAEgAA" +
            "AFNlbnNvclR5cGVJbnN0YW5jZQEB7QMBAe0D7QMAAP////8CAAAABGCACgEAAAABAAoAAABCYXNlT2Jq" +
-           "ZWN0AQGKEwAvADqKEwAA/////wAAAAAVYIkKAgAAAAEABQAAAFZhbG9yAQF+FwAvAD9+FwAAABj/////" +
+           "ZWN0AQGKEwAvADqKEwAA/////wAAAAAVYIkKAgAAAAEABQAAAFZhbG9yAQF+FwAvAD9+FwAAAAv/////" +
            "AwP/////AAAAAA==";
         #endregion
         #endif
@@ -853,7 +853,7 @@ namespace yourorganisation.org.Planta
         }
 
         /// <remarks />
-        public BaseDataVariableState Valor
+        public BaseDataVariableState<double> Valor
         {
             get
             {
@@ -936,11 +936,11 @@ namespace yourorganisation.org.Planta
                         {
                             if (replacement == null)
                             {
-                                Valor = new BaseDataVariableState(this);
+                                Valor = new BaseDataVariableState<double>(this);
                             }
                             else
                             {
-                                Valor = (BaseDataVariableState)replacement;
+                                Valor = (BaseDataVariableState<double>)replacement;
                             }
                         }
                     }
@@ -961,7 +961,7 @@ namespace yourorganisation.org.Planta
 
         #region Private Fields
         private BaseObjectState m_baseObject;
-        private BaseDataVariableState m_valor;
+        private BaseDataVariableState<double> m_valor;
         #endregion
     }
     #endif
@@ -1011,7 +1011,7 @@ namespace yourorganisation.org.Planta
         #region Initialization String
         private const string InitializationString =
            "AQAAACMAAABodHRwOi8veW91cm9yZ2FuaXNhdGlvbi5vcmcvUGxhbnRhL/////8EYIACAQAAAAEAEgAA" +
-           "AFRhbnF1ZVR5cGVJbnN0YW5jZQEB7gMBAe4D7gMAAP////8CAAAABGCACgEAAAABAAsAAABCb21iYVRh" +
+           "AFRhbnF1ZVR5cGVJbnN0YW5jZQEB7gMBAe4D7gMAAP////8DAAAABGCACgEAAAABAAsAAABCb21iYVRh" +
            "bnF1ZQEBkBMALwEB6wOQEwAA/////wkAAAAVYIkKAgAAAAEAAgAAAERMAQGKFwAvAD+KFwAAAAH/////" +
            "AwP/////AAAAABVgiQoCAAAAAQACAAAARU4BAYsXAC8AP4sXAAAAAf////8DA/////8AAAAAFWCJCgIA" +
            "AAABAAIAAABMRwEBjBcALwA/jBcAAAAB/////wMD/////wAAAAAVYIkKAgAAAAEAAgAAAFNUAQGNFwAv" +
@@ -1022,7 +1022,9 @@ namespace yourorganisation.org.Planta
            "//8DA/////8AAAAABGCACgEAAAABAA0AAABDb250cm9sZVZhemFvAQGREwAvAQHsA5ETAAD/////AwAA" +
            "ABVgiQoCAAAAAQACAAAATVYBAZEXAC8AP5EXAAAAC/////8DA/////8AAAAAFWCJCgIAAAABAAIAAABQ" +
            "VgEBkhcALwA/khcAAAAL/////wMD/////wAAAAAVYIkKAgAAAAEAAgAAAFNQAQGTFwAvAD+TFwAAAAv/" +
-           "////AwP/////AAAAAA==";
+           "////AwP/////AAAAAARggAoBAAAAAQAMAAAAU2Vuc29yVGFucXVlAQGLEwAvAQHtA4sTAAD/////AgAA" +
+           "AARggAoBAAAAAQAKAAAAQmFzZU9iamVjdAEBjBMALwA6jBMAAP////8AAAAAFWCJCgIAAAABAAUAAABW" +
+           "YWxvcgEBfxcALwA/fxcAAAAL/////wMD/////wAAAAA=";
         #endregion
         #endif
         #endregion
@@ -1065,6 +1067,25 @@ namespace yourorganisation.org.Planta
                 m_controleVazao = value;
             }
         }
+
+        /// <remarks />
+        public SensorTypeState SensorTanque
+        {
+            get
+            {
+                return m_sensorTanque;
+            }
+
+            set
+            {
+                if (!Object.ReferenceEquals(m_sensorTanque, value))
+                {
+                    ChangeMasks |= NodeStateChangeMasks.Children;
+                }
+
+                m_sensorTanque = value;
+            }
+        }
         #endregion
 
         #region Overridden Methods
@@ -1081,6 +1102,11 @@ namespace yourorganisation.org.Planta
             if (m_controleVazao != null)
             {
                 children.Add(m_controleVazao);
+            }
+
+            if (m_sensorTanque != null)
+            {
+                children.Add(m_sensorTanque);
             }
 
             base.GetChildren(context, children);
@@ -1143,6 +1169,27 @@ namespace yourorganisation.org.Planta
                     instance = ControleVazao;
                     break;
                 }
+
+                case yourorganisation.org.Planta.BrowseNames.SensorTanque:
+                {
+                    if (createOrReplace)
+                    {
+                        if (SensorTanque == null)
+                        {
+                            if (replacement == null)
+                            {
+                                SensorTanque = new SensorTypeState(this);
+                            }
+                            else
+                            {
+                                SensorTanque = (SensorTypeState)replacement;
+                            }
+                        }
+                    }
+
+                    instance = SensorTanque;
+                    break;
+                }
             }
 
             if (instance != null)
@@ -1157,6 +1204,7 @@ namespace yourorganisation.org.Planta
         #region Private Fields
         private BombaTypeState m_bombaTanque;
         private ControleTypeState m_controleVazao;
+        private SensorTypeState m_sensorTanque;
         #endregion
     }
     #endif
