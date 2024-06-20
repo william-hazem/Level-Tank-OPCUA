@@ -19,6 +19,8 @@ namespace Atividade_OPCUA
         private static TanqueTypeState mLevelTank2;
         private static TanqueTypeState mLevelTank3;
         private static TanqueTypeState mLevelTank4;
+        private static TanqueTypeState mLevelTank5;
+
 
 
         public LevelPlantNodeManager(IServerInternal server, ApplicationConfiguration configuration) : base(server, configuration) 
@@ -45,7 +47,7 @@ namespace Atividade_OPCUA
         {
             NodeStateCollection predefinedNodes = new NodeStateCollection();
             predefinedNodes.LoadFromBinaryResource(context,
-                "C:\\Users\\WilliamHenrique\\source\\repos\\Atividade-OPCUA\\Atividade-OPCUA\\Model\\yourorganisation.org.Planta.PredefinedNodes.uanodes",
+                "Model\\yourorganisation.org.Planta.PredefinedNodes.uanodes",
                 typeof(LevelPlantServerConfiguration).GetTypeInfo().Assembly,
                 true);
             return predefinedNodes;
@@ -75,10 +77,30 @@ namespace Atividade_OPCUA
                 mLevelTank4 = new TanqueTypeState(null);
                 mLevelTank4.Create(SystemContext, passiveNode4);
 
+                // Add another level tank that is not specified in XML Information Model
+                mLevelTank5 = new TanqueTypeState(null);
+                mLevelTank5.Create(
+                    SystemContext, 
+                    null,
+                    new QualifiedName("Tanque5", NamespaceIndexes[1]),
+                    null,
+                    true);
+
+                // link root to objects folder.
+                IList<IReference> references = null;
+
+                if (!externalReferences.TryGetValue(Opc.Ua.ObjectIds.ObjectsFolder, out references))
+                {
+                    externalReferences[Opc.Ua.ObjectIds.ObjectsFolder] = references = new List<IReference>();
+                }
+
+                references.Add(new NodeStateReference(Opc.Ua.ReferenceTypeIds.Organizes, false, mLevelTank5.NodeId));
+
                 AddPredefinedNode(SystemContext, mLevelTank1);
                 AddPredefinedNode(SystemContext, mLevelTank2);
                 AddPredefinedNode(SystemContext, mLevelTank3);
                 AddPredefinedNode(SystemContext, mLevelTank4);
+                AddPredefinedNode(SystemContext, mLevelTank5);
 
             }
         }

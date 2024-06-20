@@ -6,15 +6,21 @@ namespace Atividade_OPCUA
 {
     internal class Program
     {
+
+        static string sAppURI = "localhost:4880";
         static void Main(string[] args)
         {
+            Console.Write("Hello World!");
+            Console.Write("\rEnter Endpoint URI: opc.tcp://"+sAppURI);
+            Console.Write("\rEnter Endpoint URI: opc.tcp://");
+            string appuri = Console.ReadLine();
+            if (appuri.Length > 0) sAppURI = appuri;
 
             var config = CreateConfiguration();
             config.Validate(ApplicationType.Server).Wait();
 
             ApplicationInstance application = new ApplicationInstance(config);
-
-            Console.WriteLine("Hello World!");
+            
             try
             {
                 application.CheckApplicationInstanceCertificate(false, 0).Wait();
@@ -28,9 +34,9 @@ namespace Atividade_OPCUA
             catch (Exception ex)
             {
                 Console.WriteLine(ex.ToString());
+                Console.WriteLine("Press any key to exit...");
+                Console.ReadKey(true);
             }
-            
-            
         }
 
         static ApplicationConfiguration CreateConfiguration()
@@ -38,7 +44,7 @@ namespace Atividade_OPCUA
             var config = new ApplicationConfiguration
             {
                 ApplicationName = "MyOpcUaServer",
-                ApplicationUri = "urn:localhost:MyOpcUaServer",
+                ApplicationUri = $"urn:{sAppURI}:MyOpcUaServer",
                 ApplicationType = ApplicationType.Server,
                 SecurityConfiguration = new SecurityConfiguration
                 {
@@ -46,7 +52,7 @@ namespace Atividade_OPCUA
                     {
                         StoreType = CertificateStoreType.Directory,
                         StorePath = "pki/own",
-                        SubjectName = "CN=WilliamHenrique, O=UFCG, C=US"
+                        SubjectName = "CN=LIEC, O=UFCG, C=BR"
                     },
                     TrustedPeerCertificates = new CertificateTrustList
                     {
@@ -68,7 +74,7 @@ namespace Atividade_OPCUA
                 },
                 ServerConfiguration = new ServerConfiguration
                 {
-                    BaseAddresses = { "opc.tcp://localhost:8081/" },
+                    BaseAddresses = { $"opc.tcp://{sAppURI}/LevelTank/server" },
                     SecurityPolicies = new ServerSecurityPolicyCollection
                     {
                         new ServerSecurityPolicy
