@@ -29,7 +29,7 @@ namespace Atividade_OPCUA
 
             var config = CreateConfiguration();
             config.Validate(ApplicationType.Client).Wait();
-
+            //config.SaveToFile("config.xml");
             ApplicationInstance application = new ApplicationInstance(config);
 
             try
@@ -84,9 +84,30 @@ namespace Atividade_OPCUA
                                 {
                                     Console.WriteLine("Value = {0}, Status Code = {1}", result.Value, result.StatusCode);
                                 }
+
+
+
                             }
 
+                            //// Read
+                            
+                            {
+                                Console.WriteLine(" --- Fetch nodes ---");
+                                // Browse the root node
+                                var rootId = ObjectIds.ObjectsFolder;
+                                var references = uaClient.Session.FetchReferences(rootId);
 
+                                // Print immediate children's BrowseNames
+                                foreach (var reference in references)
+                                {
+                                    Console.WriteLine($"Child Node: {reference.BrowseName}");
+                                }
+
+                                BrowseAndPrintNode(uaClient.Session, ObjectIds.ObjectsFolder, "", new HashSet<NodeId>());
+
+                                Console.WriteLine(" --- ---------- ---");
+                            }
+                            Console.ReadLine();
                             //// PubSub for all browsed
                             {
                                 NodeIdCollection variableIds = null;
@@ -629,7 +650,43 @@ namespace Atividade_OPCUA
         }
 
 
+        static void BrowseAndPrintNode(ISession session, NodeId nodeId, string indent, HashSet<NodeId> visitedNodes)
+        {
+            if (visitedNodes.Contains(nodeId))
+            {
+                return;
+            }
 
+            visitedNodes.Add(nodeId);
+
+            ReferenceDescriptionCollection references;
+            byte[] continuationPoint;
+            session.Browse(
+                null,
+                null,
+                nodeId,
+                0u,
+                BrowseDirection.Forward,
+                ReferenceTypeIds.HierarchicalReferences,
+                true,
+                (uint)NodeClass.Object | (uint)NodeClass.Variable,
+                out continuationPoint,
+                out references);
+
+            // Iterate through the references
+            foreach (var reference in references)
+            {
+                var childNodeId = (NodeId)ExpandedNodeId.ToNodeId(reference.NodeId, session.NamespaceUris);
+
+                if (childNodeId.NamespaceIndex != 2) continue;
+
+                var node = session.ReadNode(childNodeId);
+                Console.WriteLine($"{indent}{node.DisplayName.Text}");
+
+                // Recursively browse children
+                BrowseAndPrintNode(session, childNodeId, indent + "  ", visitedNodes);
+            }
+        }
 
     }
 }
