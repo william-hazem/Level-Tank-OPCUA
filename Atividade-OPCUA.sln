@@ -5,7 +5,9 @@ VisualStudioVersion = 17.10.35004.147
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Atividade-OPCUA", "Atividade-OPCUA\Atividade-OPCUA.csproj", "{68505DE7-3CDC-442E-9ECE-CC8494AF3ACC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleTankClient", "TankClient\ConsoleTankClient.csproj", "{0C59E4DF-30A7-4718-BD8B-5709689788A4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleTankClient", "TankClient\ConsoleTankClient.csproj", "{0C59E4DF-30A7-4718-BD8B-5709689788A4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TankClientUI", "TankClientUI\TankClientUI.csproj", "{6E5DE19A-B8A9-4A77-A373-5CF7A4C4B7DD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{0C59E4DF-30A7-4718-BD8B-5709689788A4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0C59E4DF-30A7-4718-BD8B-5709689788A4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0C59E4DF-30A7-4718-BD8B-5709689788A4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6E5DE19A-B8A9-4A77-A373-5CF7A4C4B7DD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6E5DE19A-B8A9-4A77-A373-5CF7A4C4B7DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6E5DE19A-B8A9-4A77-A373-5CF7A4C4B7DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6E5DE19A-B8A9-4A77-A373-5CF7A4C4B7DD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
