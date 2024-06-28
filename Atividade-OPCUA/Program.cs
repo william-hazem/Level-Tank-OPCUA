@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Microsoft.AspNetCore.Hosting.Server;
 using Opc.Ua;
 using Opc.Ua.Configuration;
 
@@ -18,13 +19,13 @@ namespace Atividade_OPCUA
 
             var config = CreateConfiguration();
             config.Validate(ApplicationType.Server).Wait();
-
+            
             ApplicationInstance application = new ApplicationInstance(config);
             
             try
             {
                 application.CheckApplicationInstanceCertificate(false, 0).Wait();
-
+                
                 application.Start(new LevelPlantServer()).Wait();
 
                 Console.ReadKey(true);
@@ -52,7 +53,7 @@ namespace Atividade_OPCUA
                     {
                         StoreType = CertificateStoreType.Directory,
                         StorePath = "pki/own",
-                        SubjectName = "CN=LIEC, O=UFCG, C=BR"
+                        SubjectName = "CN=LIEC, O=UFCG, C=BR",
                     },
                     TrustedPeerCertificates = new CertificateTrustList
                     {
@@ -70,7 +71,8 @@ namespace Atividade_OPCUA
                         StorePath = "pki/issuers"
                     },
                     AutoAcceptUntrustedCertificates = true,
-                    AddAppCertToTrustedStore = true
+                    AddAppCertToTrustedStore = true,
+
                 },
                 ServerConfiguration = new ServerConfiguration
                 {
@@ -81,11 +83,18 @@ namespace Atividade_OPCUA
                         {
                             SecurityMode = MessageSecurityMode.None,
                             SecurityPolicyUri = SecurityPolicies.None
+                        },
+                        new ServerSecurityPolicy
+                        {
+                            SecurityMode = MessageSecurityMode.Sign,
+                            SecurityPolicyUri = SecurityPolicies.BaseUri
                         }
+                        
                     },
                     UserTokenPolicies = new UserTokenPolicyCollection
                     {
-                        new UserTokenPolicy(UserTokenType.Anonymous)
+                        new UserTokenPolicy(UserTokenType.Anonymous),
+                        new UserTokenPolicy(UserTokenType.UserName)
                     }
                 },
                 /*TransportQuotas = new TransportQuotas
@@ -109,5 +118,7 @@ namespace Atividade_OPCUA
 
             return config;
         }
+
+
     }
 }

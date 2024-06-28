@@ -12,6 +12,7 @@ namespace Atividade_OPCUA
     {
         protected override MasterNodeManager CreateMasterNodeManager(IServerInternal server, ApplicationConfiguration configuration)
         {
+            
             Utils.Trace("Creating the Node Managers.");
 
             List<INodeManager> nodeManagers = new List<INodeManager>();
@@ -41,9 +42,48 @@ namespace Atividade_OPCUA
         {
             base.OnServerStarted(server);
 
+            server.SessionManager.ImpersonateUser += SessionManager_ImpersonateUser;
+
             Console.WriteLine($"Servidor Iniciado em {server.EndpointAddresses.First()}");
+
+            
+            
+        }
+        private void SessionManager_ImpersonateUser(Session session, ImpersonateEventArgs args)
+        {
+            if (args.NewIdentity is UserNameIdentityToken userNameToken)
+            {
+                // Validate the user identity.
+                if (ValidateUser(userNameToken.UserName, userNameToken.DecryptedPassword))
+                {
+                    args.Identity = new UserIdentity(userNameToken);
+                    Console.WriteLine("Authenticated user as {0}", userNameToken.UserName);
+                }
+                else
+                {
+                    throw new ServiceResultException(StatusCodes.BadUserAccessDenied, "Invalid username or password.");
+                }
+                
+            }
+            else if(args.NewIdentity is AnonymousIdentityToken anonymousIdentityToken) 
+            {
+                Console.WriteLine("Authenticated Anonymous user");
+                return;
+            }
             
         }
 
+        private bool ValidateUser(string username, string password)
+        {
+            // Define valid users.
+            var users = new Dictionary<string, string>
+            {
+                { "william", "123" },
+                { "Matheus", "123" }
+            };
+
+            // Check if the username and password are valid.
+            return users.ContainsKey(username) && users[username] == password;
+        }
     }
 }
