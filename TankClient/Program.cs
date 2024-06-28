@@ -6,7 +6,7 @@ using TankClient;
 using System.Diagnostics;
 using System.Threading;
 using System;
-
+using Microsoft.Extensions.Logging;
 namespace Atividade_OPCUA
 {
     internal class Program
@@ -17,6 +17,9 @@ namespace Atividade_OPCUA
         static int kMaxSearchDepth = 10;
         static async Task Main(string[] args)
         {
+            // set log level
+            Utils.SetLogLevel(LogLevel.Information);
+
             bool quit = false;
             Console.Write("Hello World!");
             Console.Write("\rEnter Server Endpoint URI: opc.tcp://" + sAppURI);
@@ -60,13 +63,13 @@ namespace Atividade_OPCUA
 
 
                             //// Read values from nodes
+                            Console.WriteLine(" --- Read nodes ---");
                             {// set desired nodes and attributes to be read
                                 ReadValueIdCollection tanque1Values = new ReadValueIdCollection()
                                 {
                                     // Tanque 1 - Values
                                     new ReadValueId{NodeId="ns=2;i=6025", AttributeId=Attributes.Value},
                                     new ReadValueId{NodeId="ns=2;i=6037", AttributeId=Attributes.Value},
-                                    new ReadValueId{NodeId=new NodeId("Tanque1.ControleVazao.MV", 2), AttributeId=Attributes.Value},
                                 };
 
                                 // call read service
@@ -82,11 +85,11 @@ namespace Atividade_OPCUA
 
                                 foreach (DataValue result in tanque1Results)
                                 {
-                                    Console.WriteLine("Value = {0}, Status Code = {1}", result.Value, result.StatusCode);
+                                    Console.WriteLine("Read Value = {0}, Status Code = {1}", result.Value, result.StatusCode);
                                 }
 
 
-
+                                Console.WriteLine(" ------------------");
                             }
 
                             //// Read
@@ -105,9 +108,10 @@ namespace Atividade_OPCUA
 
                                 BrowseAndPrintNode(uaClient.Session, ObjectIds.ObjectsFolder, "", new HashSet<NodeId>());
 
-                                Console.WriteLine(" --- ---------- ---");
+                                Console.WriteLine(" ------------------");
                             }
-                            Console.ReadLine();
+
+                            Console.WriteLine(" --- Pub Sub nodes ---");
                             //// PubSub for all browsed
                             {
                                 NodeIdCollection variableIds = null;
@@ -529,22 +533,6 @@ namespace Atividade_OPCUA
                     FastDataChangeCallback = FastDataChangeNotification,
                     FastKeepAliveCallback = FastKeepAliveNotification,
                 };
-                //Subscription subscription = new Subscription(session.DefaultSubscription);
-
-                //subscription.DisplayName = "Console ReferenceClient Subscription";
-                //subscription.PublishingEnabled = true;
-                //subscription.PublishingInterval = 1000;
-                Console.WriteLine("lifetimecount {0}", subscription.LifetimeCount);
-                Console.WriteLine("keepalivecount {0}", subscription.KeepAliveCount);
-                Console.WriteLine("publisingInterval {0}", subscription.PublishingInterval);
-                Console.WriteLine("sequentialPublishing {0}", subscription.SequentialPublishing);
-                Console.WriteLine("publishEnabled {0}", subscription.PublishingEnabled);
-                Console.WriteLine("DisableMonitoredItemCache {0}", subscription.DisableMonitoredItemCache);
-
-
-
-
-
                 session.AddSubscription(subscription);
 
                 // Create the subscription on Server side
@@ -555,17 +543,14 @@ namespace Atividade_OPCUA
                 foreach (Node item in variableIds)
                 {
                     MonitoredItem monitoredItem = new MonitoredItem(subscription.DefaultItem);
-                    
-
-                        monitoredItem.StartNodeId = item.NodeId;
-                        monitoredItem.AttributeId = Attributes.Value;
-                        monitoredItem.SamplingInterval = samplingInterval;
-                        monitoredItem.DisplayName = item.DisplayName?.Text ?? item.BrowseName?.Name ?? "unknown";
-                        monitoredItem.QueueSize = 0;
-                        monitoredItem.DiscardOldest = true;
-                        monitoredItem.MonitoringMode = MonitoringMode.Reporting;
+                    monitoredItem.StartNodeId = item.NodeId;
+                    monitoredItem.AttributeId = Attributes.Value;
+                    monitoredItem.SamplingInterval = samplingInterval;
+                    monitoredItem.DisplayName = item.DisplayName?.Text ?? item.BrowseName?.Name ?? "unknown";
+                    monitoredItem.QueueSize = 0;
+                    monitoredItem.DiscardOldest = true;
+                    monitoredItem.MonitoringMode = MonitoringMode.Reporting;
                         
-                    
                     monitoredItem.Notification += OnMonitoredItemNotification;
                     subscription.AddItem(monitoredItem);
                     if (subscription.CurrentKeepAliveCount > 1000) break;
@@ -586,13 +571,13 @@ namespace Atividade_OPCUA
             
             try
             {
-                Console.WriteLine("Notification: Id={0} PublishTime={1} SequenceNumber={2} Items={3}.",
+                Utils.LogDebug("Notification: Id={0} PublishTime={1} SequenceNumber={2} Items={3}.",
                     subscription.Id, notification.PublishTime,
                     notification.SequenceNumber, notification.MonitoredItems.Count);
             }
             catch (Exception ex)
             {
-                Console.WriteLine("FastDataChangeNotification error: {0}", ex.Message);
+                Utils.LogError("FastDataChangeNotification error: {0}", ex.Message);
             }
         }
 
@@ -601,7 +586,6 @@ namespace Atividade_OPCUA
         /// </summary>
         private static void OnMonitoredItemNotification(MonitoredItem monitoredItem, MonitoredItemNotificationEventArgs e)
         {
-            Console.WriteLine("Some place!");
             try
             {
                 // Log MonitoredItem Notification event
@@ -640,12 +624,12 @@ namespace Atividade_OPCUA
         {
             try
             {
-                Console.WriteLine("Keep Alive  : Id={0} PublishTime={1} SequenceNumber={2}.",
+                Utils.LogDebug("Keep Alive  : Id={0} PublishTime={1} SequenceNumber={2}.",
                     subscription.Id, notification.PublishTime, notification.SequenceNumber);
             }
             catch (Exception ex)
             {
-                Console.WriteLine("FastKeepAliveNotification error: {0}", ex.Message);
+                Utils.LogError("FastKeepAliveNotification error: {0}", ex.Message);
             }
         }
 
