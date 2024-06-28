@@ -24,7 +24,7 @@ namespace TankClientUI
 
         public void UpdateText()
         {
-            if (this.NodeType.Contains("Variable"))
+            if (this.BuiltinType > BuiltInType.Null)
                 this.Text = $"{this.NodeName} ({this.NodeType}): {this.NodeValue}";
             else
                 this.Text = $"{this.NodeName} ({this.NodeType})";

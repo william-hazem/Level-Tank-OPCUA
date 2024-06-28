@@ -119,7 +119,6 @@
             // 
             // pbLogo
             // 
-            pbLogo.ImageLocation = "assets/mu.jpeg";
             pbLogo.InitialImage = (Image)resources.GetObject("pbLogo.InitialImage");
             pbLogo.Location = new Point(783, 12);
             pbLogo.Name = "pbLogo";

@@ -29,7 +29,7 @@ namespace TankClientUI
                 SessionLifeTime = 60_000,
             };
 
-            pbLogo.ImageLocation = "assets/mu.jpeg";
+            //pbLogo.ImageLocation = "assets/mu.jpeg";
         }
 
         private void ClientScreen_Load(object sender, EventArgs e)
@@ -167,6 +167,7 @@ namespace TankClientUI
                 if (node.NodeClass == NodeClass.Variable)
                 {
                     treeNode.BuiltinType = uaClient.Session.ReadValue(childNodeId).WrappedValue.TypeInfo.BuiltInType;
+                    treeNode.NodeType = treeNode.BuiltinType.ToString();
                     CreateMonitoredItem(childNodeId, treeNode);
                 }
 
@@ -214,7 +215,7 @@ namespace TankClientUI
         private void treeView1_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
         {
             CustomTreeNode node = e.Node as CustomTreeNode;
-            if (node != null && node.NodeType.Contains("Variable"))
+            if (node != null && node.BuiltinType != BuiltInType.Null)
             {
                 editBox = new TextBox();
                 editBox.Bounds = treeViewNodes.Bounds;
@@ -245,34 +246,41 @@ namespace TankClientUI
                     // write value to OPC Server
                     //uaClient.Session.ReadValue(treeViewNodes.SelectedNode.Tag as NodeId).WrappedValue.type
                     //var value = Convert.ChangeType(editBox.Text, );
-                    m_console.WriteLine("Converting string to {0}", node.BuiltinType);
-                    var value = TypeInfo.Cast(editBox.Text, node.BuiltinType);
-                    WriteValueCollection nodes2write = new WriteValueCollection()
+                    //m_console.WriteLine("Converting string to {0}", node.BuiltinType);
+                    try
                     {
-                        new WriteValue() {
-                            NodeId = node.Tag as NodeId,
-                            AttributeId = Attributes.Value,
-                            Value = new DataValue(new Variant(value))
+                        var value = TypeInfo.Cast(editBox.Text, node.BuiltinType);
+                        WriteValueCollection nodes2write = new WriteValueCollection()
+                        {
+                            new WriteValue() {
+                                NodeId = node.Tag as NodeId,
+                                AttributeId = Attributes.Value,
+                                Value = new DataValue(new Variant(value))
+                            }
+                        };
+                        StatusCodeCollection results = null;
+                        DiagnosticInfoCollection diagnosticInfos;
+                        uaClient.Session.Write(
+                            null,
+                            nodes2write,
+                            out results,
+                            out diagnosticInfos
+                        );
+
+                        foreach (StatusCode writeResult in results)
+                        {
+                            m_console.WriteLine(" Write Status = {0}", writeResult);
                         }
-                    };
-                    StatusCodeCollection results = null;
-                    DiagnosticInfoCollection diagnosticInfos;
-                    uaClient.Session.Write(
-                        null,
-                        nodes2write,
-                        out results,
-                        out diagnosticInfos
-                    );
 
-                    foreach (StatusCode writeResult in results)
-                    {
-                        m_console.WriteLine("     {0}", writeResult);
+                        node.NodeValue = editBox.Text;
+                        node.UpdateText();
+                        treeViewNodes.Controls.Remove(editBox);
+                        editBox.Dispose();
                     }
-
-                    node.NodeValue = editBox.Text;
-                    node.UpdateText();
-                    treeViewNodes.Controls.Remove(editBox);
-                    editBox.Dispose();
+                    catch(FormatException ex)
+                    {
+                        m_console.WriteLine("Wrong datatype, expected {0}", node.BuiltinType);
+                    }
                 }
             }
             else if (e.KeyCode == Keys.Escape)
